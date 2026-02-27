@@ -1,305 +1,338 @@
-
 <!DOCTYPE html>
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Code Studio | Ultra Responsive IDE</title>
-    
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='codeGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2360a5fa;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23a855f7;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='46' stroke='url(%23codeGrad)' stroke-width='6' /%3E%3Cpath d='M35 35L20 50L35 65' stroke='url(%23codeGrad)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M65 35L80 50L65 65' stroke='url(%23codeGrad)' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M55 30L45 70' stroke='url(%23codeGrad)' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
+ 
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='-10 -10 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3ClinearGradient id='fGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2360a5fa' /%3E%3Cstop offset='100%25' style='stop-color:%23a855f7' /%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='48' stroke='url(%23fGrad)' stroke-width='10' /%3E%3Cpath d='M30 35L12 50L30 65M70 35L88 50L70 65' stroke='url(%23fGrad)' stroke-width='12' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M58 25L42 75' stroke='url(%23fGrad)' stroke-width='12' stroke-linecap='round'/%3E%3C/svg%3E"> 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/dracula.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/dialog/dialog.min.css">
-    
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <style>
+        /* =========================================
+           1. VARIABLES (O'ZGARUVCHILAR)
+        ========================================= */
         :root {
-            --bg: #030712;
-            --glass: rgba(17, 24, 39, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --accent: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.4);
-            --text: #f3f4f6;
+            --bg-main: #030712;
+            --bg-glass: rgba(17, 24, 39, 0.7);
+            --bg-glass-light: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            
+            --color-primary: #3b82f6;
+            --color-primary-hover: #2563eb;
+            --color-primary-glow: rgba(59, 130, 246, 0.4);
+            --color-danger: #ef4444;
+            --color-danger-bg: rgba(239, 68, 68, 0.1);
+            
+            --text-main: #f3f4f6;
             --text-dim: #9ca3af;
-            --panel-blur: blur(20px);
+            
+            --blur: blur(20px);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            --z-base: 10;
+            --z-dialog: 100;
+            --z-header: 1000;
+            --z-nav: 2000;
+            --z-modal: 10000;
+            --z-splash: 100000;
         }
 
-        * { box-sizing: border-box; transition: opacity 0.3s ease; }
-        body, html { 
-            height: 100%; margin: 0; padding: 0; overflow: hidden;
-            font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text);
+        /* =========================================
+           2. BASE & RESET
+        ========================================= */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body { 
+            height: 100%; overflow: hidden; 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-main); color: var(--text-main); 
         }
 
         body::before {
             content: ''; position: fixed; inset: 0;
-            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #030712 100%);
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg-main) 100%);
             z-index: -2;
         }
 
-        /* --- SPLASH SCREEN & LOGO ANIMATION --- */
-        #splash-screen {
-            position: fixed; inset: 0; background: #030712; z-index: 100000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
-        }
-        .splash-text {
-            font-size: 2rem; font-weight: 800; letter-spacing: 2px;
+        /* Maxsus Scrollbar (IDE uchun judayam muhim) */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+
+        :focus:not(:focus-visible) { outline: none; }
+        :focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+        svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* =========================================
+           3. UI COMPONENTS (TUGMALAR, INPUTLAR)
+        ========================================= */
+        .text-gradient {
             background: linear-gradient(90deg, #60a5fa, #a855f7);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-top: 15px;
         }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid var(--border-glass);
+            background: var(--bg-glass-light); color: var(--text-main);
+            font-size: 0.75rem; font-weight: 600; cursor: pointer;
+            transition: all var(--transition);
+        }
+        .btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-1px); }
+        .btn:active { transform: scale(0.95); }
+        .btn--icon { padding: 0.5rem; }
+        
+        .btn--primary { background: var(--color-primary); border: none; box-shadow: 0 4px 15px var(--color-primary-glow); }
+        .btn--primary:hover { background: var(--color-primary-hover); box-shadow: 0 6px 20px var(--color-primary-glow); }
+        
+        .btn--danger { color: var(--color-danger); border-color: var(--color-danger-bg); }
+        .btn--danger:hover { background: var(--color-danger-bg); }
+        .btn--full { width: 100%; margin-block-start: 1rem; }
+
+        .input-field {
+            width: 100%; padding: 0.75rem 1rem; margin-block: 0.5rem;
+            background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-glass);
+            color: var(--text-main); border-radius: 0.5rem; outline: none; transition: all var(--transition);
+        }
+        .input-field:focus { border-color: var(--color-primary); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        select.input-field option { background: #111827; color: var(--text-main); }
+
+        .panel {
+            background: var(--bg-glass); backdrop-filter: var(--blur);
+            border: 1px solid var(--border-glass); border-radius: 1rem;
+            display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .panel__header {
+            padding: 0.75rem 1rem; background: rgba(0,0,0,0.2);
+            font-size: 0.65rem; font-weight: 800; letter-spacing: 1px;
+            color: var(--text-dim); text-transform: uppercase;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        /* =========================================
+           4. LAYOUT & SCREENS
+        ========================================= */
+        
+        /* --- Splash Screen --- */
+        #splash-screen {
+            z-index: var(--z-splash); background: var(--bg-main); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .splash-logo-main { width: clamp(120px, 20vw, 250px); height: auto; filter: drop-shadow(0 0 20px var(--color-primary-glow)); }
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
         .animate-pulse { animation: pulse 2s infinite ease-in-out; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .hidden { opacity: 0 !important; visibility: hidden !important; pointer-events: none; }
-
-        svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .logo-svg { width: 32px; height: 32px; stroke: none; fill: none; } /* Logo SVG lariga o'lcham */
-
-        /* --- HEADER --- */
-        header {
-            height: 60px; background: var(--glass); backdrop-filter: var(--panel-blur);
-            border-bottom: 1px solid var(--glass-border);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
-            z-index: 1000;
-        }
-
-        header b { 
-            font-size: 1.2rem; font-weight: 800;
-            background: linear-gradient(90deg, #60a5fa, #a855f7);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        /* --- WORKSPACE LAYOUT & RESIZE --- */
-        .workspace { display: flex; height: calc(100% - 60px); padding: 12px; gap: 0; }
-
-        #editor-container, #preview-container {
-            background: var(--glass); backdrop-filter: var(--panel-blur);
-            border: 1px solid var(--glass-border); border-radius: 16px;
-            overflow: hidden; display: flex; flex-direction: column;
-        }
-
-        #editor-container { width: 50%; flex: none; } 
-        #preview-container { flex: 1; background: transparent; min-width: 0; }
-        iframe { width: 100%; height: 100%; border: none; background: #fff; border-radius: 0 0 16px 16px; }
-
-        .resizer {
-            width: 12px; cursor: col-resize; display: flex; justify-content: center; align-items: center;
-            z-index: 10; position: relative; user-select: none;
-        }
-        .resizer::after {
-            content: ''; width: 4px; height: 40px; border-radius: 2px;
-            background: rgba(255, 255, 255, 0.1); transition: background 0.3s;
-        }
-        .resizer:hover::after, .resizer.active::after { background: var(--accent); }
-
-        .panel-label {
-            padding: 12px 15px; background: rgba(255,255,255,0.05); font-size: 11px; font-weight: 800; letter-spacing: 1px;
-            color: var(--text-dim); border-bottom: 1px solid var(--glass-border);
-            text-transform: uppercase; display: flex; align-items: center; justify-content: space-between;
-        }
-
-        /* --- DESKTOP YASHRIN MENYU (ASIDE) --- */
-        aside {
-            background: var(--glass); backdrop-filter: var(--panel-blur);
-            border-radius: 16px; overflow: hidden; display: flex; flex-direction: column;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        aside > div { min-width: 300px; } 
-
-        @media (min-width: 901px) {
-            aside { width: 0; opacity: 0; pointer-events: none; border: none; margin-right: 0; }
-            aside.open { width: 300px; opacity: 1; pointer-events: auto; border: 1px solid var(--glass-border); margin-right: 12px; }
-            .desktop-only { display: inline-flex; }
-        }
-
-        .search-container { padding: 10px; border-bottom: 1px solid var(--glass-border); }
-        .search-input { width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; color: #fff; font-size: 13px; outline: none; }
-        .search-input:focus { border-color: var(--accent); }
-
-        /* --- MOBILE BOTTOM NAV --- */
-        .mobile-nav {
-            display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
-            background: var(--glass); backdrop-filter: var(--panel-blur); border-top: 1px solid var(--glass-border); z-index: 2000;
-            justify-content: space-around; align-items: center;
-        }
-        .nav-item { color: var(--text-dim); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-item.active { color: var(--accent); }
-        .nav-item span { font-size: 10px; font-weight: bold; text-transform: uppercase; }
-
-        @media (max-width: 900px) {
-            .workspace { padding: 0; height: calc(100% - 120px); position: relative; display: block; }
-            .mobile-nav { display: flex; }
-            .desktop-only { display: none !important; }
-            .resizer { display: none !important; }
-
-            aside, #editor-container, #preview-container {
-                position: absolute; inset: 0; width: 100% !important; height: 100%;
-                border-radius: 0; border: none; opacity: 0; pointer-events: none;
-                margin: 0; transition: opacity 0.3s;
-            }
-            .active-view { opacity: 1 !important; pointer-events: auto !important; z-index: 10; display: flex !important;}
-            aside > div { min-width: 100%; }
-        }
-
-        /* --- UI ELEMENTS --- */
-        .tab-system { display: flex; background: rgba(0,0,0,0.3); margin: 10px; border-radius: 10px; padding: 4px; }
-        .tab-btn { flex: 1; padding: 8px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; font-size: 10px; font-weight: 700; border-radius: 6px; }
-        .tab-btn.active { background: var(--accent); color: #fff; }
-
-        .list { flex: 1; overflow-y: auto; padding: 10px; }
-        .card { 
-            padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; 
-            border: 1px solid var(--glass-border); margin-bottom: 10px; cursor: pointer; 
-            transition: border-color 0.3s; display: flex; justify-content: space-between; align-items: center; 
-        }
-        .card:hover { border-color: var(--accent); }
-        .card b { display: block; color: #60a5fa; font-size: 14px; }
-        .card-info { flex: 1; }
-        .delete-btn { background: none; border: none; cursor: pointer; padding: 5px; opacity: 0.7; transition: 0.3s; }
-        .delete-btn:hover { opacity: 1; transform: scale(1.1); }
-
-        .btn { padding: 8px 15px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; transition: background 0.3s;}
-        .btn:hover { background: rgba(255,255,255,0.1); }
-        .btn-blue { background: var(--accent); border: none; box-shadow: 0 4px 15px var(--accent-glow); }
-        .btn-blue:hover { background: #2563eb; }
-        .btn-red { color: #ef4444; border-color: rgba(239, 68, 68, 0.3); }
-        .btn-red:hover { background: rgba(239, 68, 68, 0.1); }
-
-        /* --- LOGIN BG & PURE GLASSMORPHISM --- */
-        #login-screen { position: fixed; inset: 0; z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-bg { position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072') center/cover; filter: brightness(0.6); z-index: -1; }
-        .login-box { 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            padding: 40px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.2); 
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); width: 90%; max-width: 380px; text-align: center; 
-        }
         
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 10px; outline: none; transition: border 0.3s; }
-        input:focus, select:focus { border-color: var(--accent); background: rgba(0,0,0,0.5); }
-        select option { background: #111827; color: #fff; }
+        /* --- Modal & Overlays --- */
+        .overlay {
+            position: fixed; inset: 0; display: flex; justify-content: center; align-items: center;
+            z-index: var(--z-modal); background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        
+        .modal-box { 
+            background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(16px);
+            padding: 2.5rem; border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.15); 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5); width: 90%; max-width: 380px; text-align: center; 
+        }
 
-        .CodeMirror { height: calc(100% - 41px) !important; font-size: 15px; background: transparent !important; }
-        .spinner { animation: spin 1s linear infinite; display: none; }
-        .CodeMirror-dialog { background: rgba(17, 24, 39, 0.95) !important; color: #fff !important; padding: 12px !important; border-radius: 12px !important; border: 1px solid var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: absolute; top: 10px; right: 10px; z-index: 100; }
-        .CodeMirror-dialog input { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px; border-radius: 6px; outline: none; margin: 0 5px; }
-        .CodeMirror-dialog button { background: var(--glass-border); border: none; color: #fff; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .CodeMirror-dialog button:hover { background: var(--accent); }
-        body.resizing { user-select: none; cursor: col-resize; }
+        .spinner { animation: spin 1s linear infinite; display: none; width: 1rem; height: 1rem; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Header --- */
+        .header {
+            height: 60px; background: rgba(17, 24, 39, 0.6); backdrop-filter: var(--blur);
+            border-bottom: 1px solid var(--border-glass); padding: 0 1.25rem;
+            display: flex; justify-content: space-between; align-items: center; z-index: var(--z-header); position: relative;
+        }
+        .header__logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.2rem; font-weight: 800; }
+        .header__logo-container { display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform var(--transition); }
+        .header__logo-container:hover { transform: rotate(10deg) scale(1.1); }
+        .header__logo-container svg { width: 35px; height: 35px; }
+        .header__actions { display: flex; gap: 0.5rem; }
+
+        /* --- Workspace (Mobil uchun default) --- */
+        .workspace { position: relative; height: calc(100% - 120px); display: block; padding: 0; }
+        .workspace__panel { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 0; border: none; opacity: 0; pointer-events: none; transition: opacity var(--transition); }
+        .workspace__panel.active-view { opacity: 1; pointer-events: auto; z-index: var(--z-base); display: flex; }
+        iframe { flex: 1; border: none; background: #fff; border-radius: 0 0 1rem 1rem; width: 100%; height: 100%; }
+        
+        .resizer { display: none; }
+
+        /* --- Mobile Nav --- */
+        .mobile-nav {
+            position: fixed; bottom: 0; inset-inline: 0; height: 60px;
+            background: rgba(17, 24, 39, 0.8); backdrop-filter: var(--blur); border-top: 1px solid var(--border-glass);
+            display: flex; justify-content: space-around; align-items: center; z-index: var(--z-nav);
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; color: var(--text-dim); cursor: pointer; transition: color var(--transition); }
+        .nav-item.active { color: var(--color-primary); }
+        .nav-item span { font-size: 0.6rem; font-weight: bold; text-transform: uppercase; }
+
+        /* --- Fayl Menyusi & Kartochkalar --- */
+        .tab-system { display: flex; background: rgba(0,0,0,0.4); margin: 0.75rem; border-radius: 0.5rem; padding: 0.25rem; }
+        .tab-btn { flex: 1; padding: 0.5rem; border: none; background: transparent; color: var(--text-dim); cursor: pointer; font-size: 0.65rem; font-weight: 700; border-radius: 0.4rem; transition: all var(--transition); }
+        .tab-btn.active { background: var(--color-primary); color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+
+        .list-container { flex: 1; overflow-y: auto; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
+        .card { 
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 0.75rem; 
+            border: 1px solid rgba(255,255,255,0.05); cursor: pointer; 
+            display: flex; justify-content: space-between; align-items: center; 
+            transition: all var(--transition); 
+        }
+        .card:hover { border-color: var(--color-primary); background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+        .card__info { display: flex; flex-direction: column; gap: 0.2rem;}
+        .card__title { color: var(--color-primary); font-size: 0.9rem; font-weight: 600; }
+        
+        .delete-btn { background: none; border: none; cursor: pointer; padding: 0.4rem; opacity: 0.6; transition: var(--transition); color: var(--color-danger); border-radius: 50%; }
+        .delete-btn:hover { opacity: 1; background: var(--color-danger-bg); transform: scale(1.1); }
+
+        /* --- CodeMirror Overrides --- */
+        .CodeMirror { height: 100% !important; flex: 1; font-size: 15px; background: transparent !important; }
+        .CodeMirror-dialog { background: rgba(17, 24, 39, 0.95) !important; color: #fff !important; padding: 0.75rem !important; border-radius: 0.75rem !important; border: 1px solid var(--color-primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: absolute; top: 10px; right: 10px; z-index: var(--z-dialog); }
+        .CodeMirror-dialog input { background: rgba(0,0,0,0.5); border: 1px solid var(--border-glass); color: #fff; padding: 0.4rem 0.8rem; border-radius: 0.4rem; outline: none; margin-inline: 0.5rem; }
+        .CodeMirror-dialog button { background: var(--border-glass); border: none; color: #fff; padding: 0.4rem 0.8rem; border-radius: 0.4rem; cursor: pointer; font-size: 0.75rem; transition: 0.2s;}
+        .CodeMirror-dialog button:hover { background: var(--color-primary); }
+
+        /* =========================================
+           5. RESPONSIVE (DESKTOP)
+        ========================================= */
+        .desktop-only { display: none; }
+        
+        @media (min-width: 900px) {
+            .desktop-only { display: inline-flex !important; }
+            .mobile-nav { display: none; }
+            
+            .workspace { height: calc(100% - 60px); display: flex; padding: 0.75rem; gap: 0; }
+            
+            .workspace__panel { position: relative; border-radius: 1rem; border: 1px solid var(--border-glass); opacity: 1; pointer-events: auto; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s; }
+            
+            #view-files { width: 0; opacity: 0; pointer-events: none; border: none; margin-right: 0; }
+            #view-files.open { width: 300px; opacity: 1; pointer-events: auto; border: 1px solid var(--border-glass); margin-right: 0.75rem; flex-shrink: 0; }
+            #view-files > div { min-width: 300px; }
+
+            #editor-container { width: 50%; flex: none; }
+            #preview-container { flex: 1; min-width: 0; }
+            
+            .resizer { display: flex; width: 16px; cursor: col-resize; justify-content: center; align-items: center; z-index: var(--z-base); user-select: none; }
+            .resizer::after { content: ''; width: 4px; height: 40px; border-radius: 2px; background: rgba(255, 255, 255, 0.15); transition: background var(--transition), height 0.3s; }
+            .resizer:hover::after, .resizer.active::after { background: var(--color-primary); height: 60px; box-shadow: 0 0 10px var(--color-primary-glow); }
+            body.resizing { user-select: none; cursor: col-resize; }
+        }
     </style>
 </head>
 <body>
 
-<div id="splash-screen">
-    <svg class="animate-pulse" width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div id="splash-screen" class="overlay">
+    <svg class="animate-pulse splash-logo-main" viewBox="-10 -10 120 120" fill="none">
         <defs>
             <linearGradient id="codeGradSplash" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+                <stop offset="0%" style="stop-color:#60a5fa" /><stop offset="100%" style="stop-color:#a855f7" />
             </linearGradient>
         </defs>
-        <circle cx="50" cy="50" r="46" stroke="url(#codeGradSplash)" stroke-width="6" />
+        <circle cx="50" cy="50" r="48" stroke="url(#codeGradSplash)" stroke-width="10" />
         <path d="M35 35L20 50L35 65" stroke="url(#codeGradSplash)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M65 35L80 50L65 65" stroke="url(#codeGradSplash)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M55 30L45 70" stroke="url(#codeGradSplash)" stroke-width="7" stroke-linecap="round"/>
     </svg>
-    <div class="splash-text">CODE STUDIO</div>
-    <div style="margin-top:10px; color:var(--text-dim); font-size:12px;">Dasturga ulanmoqda...</div>
+    <div class="text-gradient" style="font-size:2.2rem; font-weight:800; letter-spacing:3px; margin-top:1.5rem;">CODE STUDIO</div>
+    <div style="margin-top:0.5rem; color:var(--text-dim); font-size:0.8rem; letter-spacing: 1px;">Ishchi muhit tayyorlanmoqda...</div>
 </div>
 
-<div id="login-screen" class="hidden">
-    <div class="login-bg"></div>
-    <div class="login-box">
-        <div style="display:flex; justify-content:center; margin-bottom: 10px;">
-            <svg class="logo-svg" width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div id="login-screen" class="overlay hidden" style="background: url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072') center/cover; z-index:9999;">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.65); z-index: -1;"></div>
+    <div class="modal-box">
+        <h2 style="font-weight:800; margin-bottom:1.5rem; letter-spacing:1px; text-shadow:0 2px 10px rgba(0,0,0,0.8); color: white;">TIZIMGA KIRISH</h2>
+        
+        <input type="email" id="email" class="input-field" placeholder="Elektron manzil">
+        <input type="password" id="password" class="input-field" placeholder="Parol (min. 6 belgi)">
+        
+        <button class="btn btn--primary btn--full" onclick="authAction('login')" style="padding: 0.8rem;">
+            <svg class="spinner" id="login-spinner" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke="#fff"></path></svg>
+            <span id="login-text">KIRISH</span>
+        </button>
+        <button class="btn" style="background:none; border:none; margin-top:1rem; font-size:0.8rem; color:var(--text-dim);" onclick="authAction('signup')">Ro'yxatdan o'tish</button>
+    </div>
+</div>
+
+<header class="header">
+    <div class="header__logo">
+        <button class="btn btn--icon desktop-only" onclick="toggleSidebar()" title="Menyu" style="border: none; background: transparent;">
+            <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <div class="header__logo-container" title="Code Studio Home">
+            <svg viewBox="-10 -10 120 120" fill="none">
                 <circle cx="50" cy="50" r="46" stroke="url(#codeGradSplash)" stroke-width="6" />
                 <path d="M35 35L20 50L35 65" stroke="url(#codeGradSplash)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M65 35L80 50L65 65" stroke="url(#codeGradSplash)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M55 30L45 70" stroke="url(#codeGradSplash)" stroke-width="7" stroke-linecap="round"/>
             </svg>
         </div>
-        <h2 style="color:#fff; font-weight:800; margin-top:0; margin-bottom:25px; letter-spacing: 1px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">CODE STUDIO</h2>
-        
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Parol (min. 6 belgi)">
-        <button class="btn btn-blue" style="width:100%; margin-top:10px" onclick="authAction('login')">
-            <svg class="spinner" id="login-spinner" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)"></circle><path d="M12 2a10 10 0 0 1 10 10" stroke="#fff"></path></svg>
-            <span id="login-text">KIRISH</span>
-        </button>
-        <button style="background:none; border:none; color:#fff; text-shadow: 0 1px 3px rgba(0,0,0,0.8); margin-top:20px; cursor:pointer; font-size:12px; font-weight: 600;" onclick="authAction('signup')">Ro'yxatdan o'tish</button>
-    </div>
-</div>
-
-<header>
-    <div style="display:flex; align-items:center; gap:12px;">
-        <button class="btn desktop-only" onclick="toggleSidebar()" style="background:transparent; border:none; padding:8px; box-shadow:none;" title="Menyu">
-            <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </button>
-        <svg class="logo-svg desktop-only" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="46" stroke="url(#codeGradSplash)" stroke-width="6" />
-            <path d="M35 35L20 50L35 65" stroke="url(#codeGradSplash)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M65 35L80 50L65 65" stroke="url(#codeGradSplash)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M55 30L45 70" stroke="url(#codeGradSplash)" stroke-width="7" stroke-linecap="round"/>
-        </svg>
-        <b>CODE STUDIO</b>
+        <span class="text-gradient desktop-only">CODE STUDIO</span>
     </div>
     
-    <div style="display:flex; gap:8px;">
-        <button class="btn desktop-only" onclick="toggleLayout()" title="Oynani yashirish/ko'rsatish"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg></button>
-        <button class="btn" onclick="editor.execCommand('find')" title="Kodni qidirish"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
-        
-        <button class="btn" onclick="triggerUndo()" title="Orqaga Qaytarish"><svg viewBox="0 0 24 24"><path d="M3 7v6h6"></path><path d="M3 13a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 13"></path></svg></button>
-        <button class="btn" onclick="triggerRedo()" title="Oldinga Qaytarish"><svg viewBox="0 0 24 24"><path d="M21 7v6h-6"></path><path d="M21 13a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 13"></path></svg></button>
-        
-        <button class="btn btn-blue" onclick="toggleModal(true)" title="Saqlash"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button>
-        <button class="btn btn-red" onclick="logout()" title="Chiqish"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></button>
+    <div class="header__actions">
+        <button class="btn btn--icon desktop-only" onclick="toggleLayout()" title="Oynani yashirish/ko'rsatish"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg></button>
+        <button class="btn btn--icon" onclick="editor.execCommand('find')" title="Qidirish"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+        <button class="btn btn--icon" onclick="triggerUndo()" title="Orqaga"><svg viewBox="0 0 24 24"><path d="M3 7v6h6"></path><path d="M3 13a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 13"></path></svg></button>
+        <button class="btn btn--icon" onclick="triggerRedo()" title="Oldinga"><svg viewBox="0 0 24 24"><path d="M21 7v6h-6"></path><path d="M21 13a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 13"></path></svg></button>
+        <button class="btn btn--icon btn--primary" onclick="toggleModal(true)" title="Saqlash"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></button>
+        <button class="btn btn--icon btn--danger" onclick="logout()" title="Chiqish"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></button>
     </div>
 </header>
 
 <div class="workspace" id="workspace">
-    <aside id="view-files">
-        <div class="panel-label">LOYIHALAR <svg viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
-        <div class="search-container"><input type="text" class="search-input" id="repo-search" placeholder="Loyihalarni qidirish..." oninput="filterRepos()"></div>
+    <aside class="panel workspace__panel" id="view-files">
+        <div class="panel__header">LOYIHALAR <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></div>
+        <div style="padding: 0.75rem 0.75rem 0;"><input type="text" class="input-field" style="margin:0;" id="repo-search" placeholder="Loyihalarni izlash..." oninput="filterRepos()"></div>
         <div class="tab-system">
             <button class="tab-btn active" id="tab-my" onclick="setTab('my')">MENING</button>
             <button class="tab-btn" id="tab-pub" onclick="setTab('pub')">OMMAVIY</button>
         </div>
-        <div id="repo-list" class="list"></div>
+        <div id="repo-list" class="list-container"></div>
     </aside>
 
-    <div id="editor-container" class="active-view">
-        <div class="panel-label">EDITOR <svg viewBox="0 0 24 24" style="width:14px;height:14px;"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></div>
+    <div class="panel workspace__panel active-view" id="editor-container">
+        <div class="panel__header">EDITOR <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></div>
         <textarea id="editor"></textarea>
     </div>
 
     <div class="resizer" id="resizer"></div>
 
-    <div id="preview-container">
-        <div class="panel-label">NATIJA <svg viewBox="0 0 24 24" style="width:14px;height:14px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
+    <div class="panel workspace__panel" id="preview-container">
+        <div class="panel__header">NATIJA <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></div>
         <iframe id="preview"></iframe>
     </div>
 </div>
 
 <div class="mobile-nav">
-    <div class="nav-item" onclick="switchView('view-files', this)"><svg viewBox="0 0 24 24" style="width:24px;height:24px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg><span>Fayllar</span></div>
-    <div class="nav-item active" onclick="switchView('editor-container', this)"><svg viewBox="0 0 24 24" style="width:24px;height:24px;"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg><span>Kod</span></div>
-    <div class="nav-item" onclick="switchView('preview-container', this)"><svg viewBox="0 0 24 24" style="width:24px;height:24px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Natija</span></div>
+    <div class="nav-item" onclick="switchView('view-files', this)"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg><span>Fayllar</span></div>
+    <div class="nav-item active" onclick="switchView('editor-container', this)"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg><span>Kod</span></div>
+    <div class="nav-item" onclick="switchView('preview-container', this)"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Natija</span></div>
 </div>
 
-<div id="save-modal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); z-index:10000; display:flex; justify-content:center; align-items:center;">
-    <div class="login-box" style="padding:30px; background: rgba(17, 24, 39, 0.95);">
-        <h3 style="margin-top:0; color:#fff;">Kodni Saqlash</h3>
-        <input type="text" id="repo-name" placeholder="Loyiha nomi">
+<div id="save-modal" class="overlay hidden">
+    <div class="modal-box">
+        <h3 style="margin-top:0; color:#fff; margin-bottom: 1.5rem;">Kodni Saqlash</h3>
+        <input type="text" id="repo-name" class="input-field" placeholder="Loyiha nomini kiriting">
         
-        <select id="repo-visibility">
+        <select id="repo-visibility" class="input-field">
             <option value="public">🌍 Ommaviy (Barchaga ko'rinadi)</option>
             <option value="private">🔒 Shaxsiy (Faqat o'zingizga)</option>
         </select>
 
-        <button class="btn btn-blue" style="width:100%; margin-top:15px;" onclick="saveRepo()">SAQLASH</button>
-        <button class="btn" style="width:100%; margin-top:10px" onclick="toggleModal(false)">BEKOR QILISH</button>
+        <button class="btn btn--primary btn--full" onclick="saveRepo()" style="padding: 0.8rem;">SAQLASH</button>
+        <button class="btn btn--full" onclick="toggleModal(false)" style="padding: 0.8rem; background: transparent;">BEKOR QILISH</button>
     </div>
 </div>
 
@@ -336,15 +369,19 @@
     let user = null;
     let allRepos = [];
 
+    // CodeMirror Sozlamalari
     window.editor = CodeMirror.fromTextArea(document.getElementById("editor"), {
-        mode: "htmlmixed", theme: "dracula", lineNumbers: true, autoCloseTags: true, lineWrapping: true
+        mode: "htmlmixed", 
+        theme: "dracula", 
+        lineNumbers: true, 
+        autoCloseTags: true, 
+        lineWrapping: true
     });
 
-    // --- UNDO VA REDO FUKSIYALARI ---
     window.triggerUndo = () => editor.undo();
     window.triggerRedo = () => editor.redo();
 
-    // --- PANELS RESIZE MANTIQI ---
+    // Resize Logic (Silliq tortish uchun)
     const resizer = document.getElementById('resizer');
     const editorContainer = document.getElementById('editor-container');
     const iframe = document.getElementById('preview');
@@ -353,8 +390,11 @@
     let isResizing = false;
 
     resizer.addEventListener('mousedown', (e) => {
-        isResizing = true; document.body.classList.add('resizing'); resizer.classList.add('active');
-        iframe.style.pointerEvents = 'none'; e.preventDefault();
+        isResizing = true; 
+        document.body.classList.add('resizing'); 
+        resizer.classList.add('active');
+        iframe.style.pointerEvents = 'none'; 
+        e.preventDefault();
     });
 
     document.addEventListener('mousemove', (e) => {
@@ -362,40 +402,53 @@
         const rect = workspace.getBoundingClientRect();
         let asideWidth = aside.classList.contains('open') ? aside.offsetWidth + 12 : 0; 
         let newWidth = e.clientX - rect.left - asideWidth - 12; 
-        if (newWidth < 150) newWidth = 150; 
-        let maxWidth = rect.width - asideWidth - 24 - 150; 
+        
+        // Limitlar
+        if (newWidth < 200) newWidth = 200; 
+        let maxWidth = rect.width - asideWidth - 24 - 200; 
         if (newWidth > maxWidth) newWidth = maxWidth;
+        
         editorContainer.style.width = `${newWidth}px`;
         editor.refresh(); 
     });
 
     document.addEventListener('mouseup', () => {
-        if (isResizing) { isResizing = false; document.body.classList.remove('resizing'); resizer.classList.remove('active'); iframe.style.pointerEvents = 'auto'; }
+        if (isResizing) { 
+            isResizing = false; 
+            document.body.classList.remove('resizing'); 
+            resizer.classList.remove('active'); 
+            iframe.style.pointerEvents = 'auto'; 
+        }
     });
 
+    // View Logic
     window.toggleLayout = () => {
         if (window.innerWidth < 900) return;
         if (editorContainer.style.display === 'none') {
-            editorContainer.style.display = 'flex';
-            editorContainer.style.width = '50%';
+            editorContainer.style.display = 'flex'; 
+            editorContainer.style.width = '50%'; 
             resizer.style.display = 'flex';
         } else {
-            editorContainer.style.display = 'none';
+            editorContainer.style.display = 'none'; 
             resizer.style.display = 'none';
         }
         setTimeout(() => editor.refresh(), 50);
     };
 
-    window.toggleSidebar = () => { aside.classList.toggle('open'); setTimeout(() => editor.refresh(), 400); };
+    window.toggleSidebar = () => { 
+        aside.classList.toggle('open'); 
+        setTimeout(() => editor.refresh(), 400); 
+    };
 
     window.switchView = (viewId, el) => {
-        document.querySelectorAll('.workspace > aside, .workspace > div:not(.resizer)').forEach(v => v.classList.remove('active-view'));
+        document.querySelectorAll('.workspace__panel').forEach(v => v.classList.remove('active-view'));
         document.getElementById(viewId).classList.add('active-view');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
         if(viewId === 'editor-container') setTimeout(() => editor.refresh(), 50);
     };
 
+    // Firebase Fetch & Render
     window.filterRepos = () => {
         const term = document.getElementById('repo-search').value.toLowerCase();
         const filtered = allRepos.filter(r => r.name.toLowerCase().includes(term));
@@ -405,7 +458,6 @@
     function renderList(items) {
         const list = document.getElementById('repo-list');
         list.innerHTML = "";
-        
         const isAdmin = user && user.email === 'admin@admin.com';
 
         items.forEach(item => {
@@ -413,14 +465,20 @@
             card.className = "card";
             
             const info = document.createElement('div');
-            info.className = "card-info";
-            info.innerHTML = `<b>${item.name}</b><small style="color:${item.isPublic ? '#4ade80' : '#f87171'}">${item.isPublic ? '🌍 Ommaviy' : '🔒 Shaxsiy'}</small>`;
-            card.appendChild(info);
+            info.className = "card__info";
+            info.innerHTML = `
+                <span class="card__title">${item.name}</span>
+                <small style="color:${item.isPublic ? '#4ade80' : '#f87171'}">
+                    ${item.isPublic ? '🌍 Ommaviy' : '🔒 Shaxsiy'}
+                </small>
+            `;
+ 
+          card.appendChild(info);
 
             if (item.uid === user.uid || isAdmin) {
                 const delBtn = document.createElement('button');
                 delBtn.className = 'delete-btn';
-                delBtn.innerHTML = `<svg viewBox="0 0 24 24" style="stroke:#ef4444; width:18px; height:18px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+                delBtn.innerHTML = `<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
                 delBtn.onclick = async (e) => {
                     e.stopPropagation();
                     if(confirm(`"${item.name}" loyihasini butunlay o'chirib tashlaysizmi?`)) {
@@ -450,6 +508,7 @@
         });
     }
 
+    // Auth & Utilities
     const toggleLoading = (isLoading) => {
         document.getElementById('login-spinner').style.display = isLoading ? 'block' : 'none';
         document.getElementById('login-text').style.display = isLoading ? 'none' : 'block';
@@ -458,6 +517,8 @@
     window.authAction = async (type) => {
         const e = document.getElementById('email').value;
         const p = document.getElementById('password').value;
+        if(!e || !p) return alert("Email va parolni kiriting!");
+        
         toggleLoading(true);
         try {
             if(type === 'signup') await createUserWithEmailAndPassword(auth, e, p);
@@ -466,13 +527,18 @@
         finally { toggleLoading(false); }
     };
 
-    window.addEventListener('load', () => { setTimeout(() => { document.getElementById('splash-screen').classList.add('hidden'); }, 1500); });
+    window.addEventListener('load', () => { 
+        setTimeout(() => { document.getElementById('splash-screen').classList.add('hidden'); }, 1500); 
+    });
 
     onAuthStateChanged(auth, u => {
         if(u) {
-            user = u; document.getElementById('login-screen').classList.add('hidden'); setTab('my');
+            user = u; 
+            document.getElementById('login-screen').classList.add('hidden'); 
+            setTab('my');
         } else {
-            user = null; document.getElementById('login-screen').classList.remove('hidden');
+            user = null; 
+            document.getElementById('login-screen').classList.remove('hidden');
         }
     });
 
@@ -494,7 +560,9 @@
 
     function updatePreview() {
         const p = document.getElementById('preview').contentDocument;
-        p.open(); p.write('<style>body{color:#000; font-family:sans-serif; margin:0; padding:10px;}</style>' + editor.getValue()); p.close();
+        p.open(); 
+        p.write('<style>body{color:#000; font-family:sans-serif; margin:0; padding:10px;}</style>' + editor.getValue()); 
+        p.close();
     }
 
     window.toggleModal = (v) => {
